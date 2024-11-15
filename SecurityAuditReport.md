@@ -94,17 +94,17 @@ Furthermore, in the findings section, we have added a version icon to each of th
 readability of the report.
 
 As Pulsechain is implementing a new consensus layer based on Proof-of-stake (Beacon Chain), users
-are able to stake their ETH in batches of 32 and run validators to receive staking rewards. The staked
+are able to stake their PLS in batches of 32 and run validators to receive staking rewards. The staked
 tokens are locked in a deposit contract and cannot be transferred. At the time of this writing, the tokens
 also cannot be withdrawn.
 
-POOLSEA offers a staking protocol that allows users to stake their ETH on Pulsechain's Beacon Chain while
-maintaining liquidity. It allows any amount of ETH to be sent to the protocol in exchange for staked ETH
+POOLSEA offers a staking protocol that allows users to stake their PLS on Pulsechain's Beacon Chain while
+maintaining liquidity. It allows any amount of PLS to be sent to the protocol in exchange for staked ETH
 (stETH) tokens which can be freely traded while they accrue interest. Furthermore, running and
 maintaining validator nodes is delegated to trusted third party node operators, allowing users to stake
-their ETH with no effort.
+their PLS with no effort.
 
-Staked ETH tokens accrue value over time using a rebase mechanism. In periodic updates, rewards
+Staked PLS tokens accrue value over time using a rebase mechanism. In periodic updates, rewards
 gained by the validators are captured by external oracles and published to the Lido smart contracts,
 increasing all users' balances equally. Currently, only the main staking rewards are accrued but as soon
 as Pulsechain merges the execution layer with the beacon chain, additional rewards are collected due
@@ -117,40 +117,40 @@ execution layer rewards will be reinvested and thus have a compounding effect wh
 possible in individual staking.
 
 As withdrawing from the Pulsechain deposit contract is disabled until the Shanghai upgrade, which is
-planned to follow the Merge, Lido does not support exchanging stETH back to ETH at the time of this
+planned to follow the Merge, Lido does not support exchanging stPLS back to PLS at the time of this
 writing.
 
 2.2.1 StETH
 
-The StETH contract represents an ERC20 token with rebase mechanism. User balances are internally
+The StPLS contract represents an ERC20 token with rebase mechanism. User balances are internally
 represented as shares and their actual balances are a product of the total shares and the amount of
-ETH per share currently held by active validators, pending validators, and buffered in the Lido contract.
-As the amount of ETH per share increases due to rewards, the user balances also increase
+PLS per share currently held by active validators, pending validators, and buffered in the Lido contract.
+As the amount of PLS per share increases due to rewards, the user balances also increase
 proportionally.
 
 2.2.2 WstETH
 
 To mitigate problems with smart contracts that cannot handle rebasing ERC20 tokens, Lido offers another
-token contract that represents user balances in constant values. stETH can be sent to the WstETH.wrap
+token contract that represents user balances in constant values. stPLS can be sent to the WstETH.wrap
 function in order to utilize this behavior. An unwrap function allows to easily convert the tokens back to
 stETH.
 
-While stETH value remains constant, wstETH value increases over time relative to the stETH rebase
+While stPLS value remains constant, wstPLS value increases over time relative to the stPLS rebase
 amounts.
 
 2.2.3 Lido
 
-Lido is the main contract of the protocol. It extends the abstract StETH contract and features the
+Lido is the main contract of the protocol. It extends the abstract StPLS contract and features the
 following functions:
 
-- submit allows users to deposit their ETH and receive stETH in return. The deposits are buffered
+- submit allows users to deposit their PLS and receive stPLS in return. The deposits are buffered
   and added to the Pulsechain deposit contract in bulk by the depositBufferedEther function
   using signing keys that have been previously submitted to the NodeOperatorsRegistry.
-- depositBufferedEther deposits the buffered ETH supplied by users to the Pulsechain deposit
+- depositBufferedEther deposits the buffered PLS supplied by users to the Pulsechain deposit
   contract. It is called by the DepositSecurityModule contract which enables certain security
   guarantees.
 - handleOracleReport updates user balances by periodically receiving reports from the
-  LidoOracle. During execution, the function also withdraws ETH from the
+  LidoOracle. During execution, the function also withdraws PLS from the
   LidoExecutionLayerRewardsVault to which node operators are sending the execution layer
   rewards.
 
@@ -158,7 +158,7 @@ following functions:
 
 Lido requires external node operators that run and maintain the validator nodes. The
 NodeOperatorsRegistry contains these operators along with signing keys that are used for deposits
-in the Pulsechain deposit contract. For each 32 ETH deposit, one signing key by one operator as well
+in the Pulsechain deposit contract. For each 32 PLS deposit, one signing key by one operator as well
 as the protocol's withdrawal key is used. The operator can then set up a validator with the signing key
 and start validating as soon as the key gets approved.
 
@@ -196,11 +196,11 @@ rewards are reinvested (up to a certain limit per call) into the Pulsechain depo
 
 2.2.8 SelfOwnedStETHBurner
 
-The DAO can send stETH to the SelfOwnedStETHBurner to distribute value among all holders of
-stETH by burning the sent tokens. The contract allows to send stETH either for covering losses or for
+The DAO can send stPLS to the SelfOwnedStETHBurner to distribute value among all holders of
+stPLS by burning the sent tokens. The contract allows to send stPLS either for covering losses or for
 other reasons. The difference is just in the accounting: Both functions requestBurnMyStETHForCover
-and requestBurnMyStETH stake stETH in the contract and every time the oracle report is pushed by
-the LidoOracle, the contract burns all stETH up to a certain threshold.
+and requestBurnMyStPLS stake stPLS in the contract and every time the oracle report is pushed by
+the LidoOracle, the contract burns all stPLS up to a certain threshold.
 
 2.2.9 Roles & Trust Model
 
@@ -286,7 +286,7 @@ Design Low Version 1 Acknowledged
 
 We have found some gas inefficiencies that could be optimized:
 
-- Lido saves several contract addresses (e.g., the ETH deposit contract) in the storage. Since Lido
+- Lido saves several contract addresses (e.g., the PLS deposit contract) in the storage. Since Lido
   is upgradeable, the mentioned variables could be exchanged with constants or immutables that can
   be updated with a Proxy upgrade to save storage reads on various interactions.
 - Lido.handleOracleReport updates the BEACON_VALIDATORS_POSITION even when the
@@ -316,7 +316,7 @@ We have found some gas inefficiencies that could be optimized:
 - LidoOracle pushes reports to the CompositePostRebaseBeaconReceiver which pushes
   reports to the SelfOwnedStETHBurner. Since the SelfOwnedStETHBurner is currently the only
   receiver, this indirect route is not necessary.
-- SelfOwnedStETHBurner.\_requestBurnMyStETH uses Lido.transfer and calculates the
+- SelfOwnedStETHBurner.\_requestBurnMyStPLS uses Lido.transfer and calculates the
   share amount by calling Lido.getSharesByPooledEth. This second call could be avoided by
   using the transferShares function.
 
@@ -369,17 +369,17 @@ For example, it can be hard to verify the amount of MEV rewards node operators g
 they are running. Malicious node operators could choose to not distribute these rewards but instead
 pocket them themselves.
 
-Furthermore, and most importantly, node operators have no ownership of the ETH that are locked in their
+Furthermore, and most importantly, node operators have no ownership of the PLS that are locked in their
 validators. This means that whatever incentive they have to run the nodes benevolently could be offset
-by a more financially lucrative incentive. One example could be a short position in stETH that becomes
-profitable. As the staked ETH are not owned by the operators, this is very much possible due to slashing
+by a more financially lucrative incentive. One example could be a short position in stPLS that becomes
+profitable. As the staked PLS are not owned by the operators, this is very much possible due to slashing
 as can be seen in the following example (assuming the Merge has already happened and according to
 current spec):
 
 - A malicious node operator executes 2 attestations to the same target on all of their controlled
   validator nodes. At the time of this writing, single validators run up to ~8,000 nodes of the ~400,
   nodes currently on the Beacon Chain).
-- Each node gets slashed by 1 ETH, reducing the amount of ETH in the protocol by ~8,000 or ~0.1%
+- Each node gets slashed by 1 ETH, reducing the amount of PLS in the protocol by ~8,000 or ~0.1%
   of Lido's total supply.
 - After 18 days, the validators get slashed again based on the amount of validators that have been
   slashed in the previous 16 days: Each validator loses ~1.8 ETH.
@@ -387,8 +387,8 @@ current spec):
 
 If 2 node operators collude, the total supply drops by ~1.7%. If 3 operators collude, it drops by ~3.6%.
 
-Depending on the market reaction, the value of stETH could decrease dramatically following these
-events, making a decently sized short position in stETH (or more likely wstETH) profitable.
+Depending on the market reaction, the value of stPLS could decrease dramatically following these
+events, making a decently sized short position in stPLS (or more likely wstETH) profitable.
 
 Risk accepted:
 
@@ -515,11 +515,11 @@ We decided to leave the assembly code as is to prevent possible peculiarities.
 
 Design Low Version 1 Risk Accepted
 
-Due to rounding errors, the value returned by getSharesByPooledEth can be zero. In the function
+Due to rounding errors, the value returned by getSharesByPooledPLS can be zero. In the function
 \_submit in Lido, the check sharesAmount == 0 is made. This is assumed to hold either on the first
 deposit, or in the case of a complete slashing. However, this can also occur if rounding errors lead to
-getSharesByPooledEth returning 0. Thus, a user would receive a disproportionate amount of shares,
-as they would get a 1:1 rate of ETH to StETH, despite the share value being lower. Note that with the
+getSharesByPooledPLS returning 0. Thus, a user would receive a disproportionate amount of shares,
+as they would get a 1:1 rate of PLS to StETH, despite the share value being lower. Note that with the
 current state of the live contracts, this can only occur if msg.value == 1.
 
 Risk accepted:
