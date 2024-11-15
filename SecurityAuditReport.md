@@ -1,10 +1,4 @@
-## PUBLIC
-
-# Code Assessment
-
-# of the Lido
-
-# Smart Contracts
+# Code Assessment of the Lido Smart Contracts on Pulsechain
 
 ```
 November 14, 2024
