@@ -4,9 +4,7 @@
 November 14, 2024
 ```
 
-## Produced for
-
-## by
+## Produced for Poolsea by 0xLancerLab
 
 ## Contents
 
@@ -51,7 +49,7 @@ were received.
 
 ```
 V Date Commit Hash Note
-1 19 May 2022 08436ce13d67501fa723169c1dc69fe47b90cde4 Initial Version
+1 13 Nov 2024 0xaB91c12eB63f48E9863d3bE8396B63E3f225cbD2 Initial Version
 ```
 
 The following files were in scope. Various compiler versions were used for different contracts.
@@ -95,12 +93,12 @@ Assessment Overview.
 Furthermore, in the findings section, we have added a version icon to each of the findings to increase the
 readability of the report.
 
-As ETHEREUM is implementing a new consensus layer based on Proof-of-stake (Beacon Chain), users
+As Pulsechain is implementing a new consensus layer based on Proof-of-stake (Beacon Chain), users
 are able to stake their ETH in batches of 32 and run validators to receive staking rewards. The staked
 tokens are locked in a deposit contract and cannot be transferred. At the time of this writing, the tokens
 also cannot be withdrawn.
 
-Lido offers a staking protocol that allows users to stake their ETH on ETHEREUM's Beacon Chain while
+POOLSEA offers a staking protocol that allows users to stake their ETH on Pulsechain's Beacon Chain while
 maintaining liquidity. It allows any amount of ETH to be sent to the protocol in exchange for staked ETH
 (stETH) tokens which can be freely traded while they accrue interest. Furthermore, running and
 maintaining validator nodes is delegated to trusted third party node operators, allowing users to stake
@@ -109,7 +107,7 @@ their ETH with no effort.
 Staked ETH tokens accrue value over time using a rebase mechanism. In periodic updates, rewards
 gained by the validators are captured by external oracles and published to the Lido smart contracts,
 increasing all users' balances equally. Currently, only the main staking rewards are accrued but as soon
-as ETHEREUM merges the execution layer with the beacon chain, additional rewards are collected due
+as Pulsechain merges the execution layer with the beacon chain, additional rewards are collected due
 to transaction priority fees and Miner Extractable Value (MEV).
 
 Due to network and node operator fees, as well as the fact that rewards are socialized between all
@@ -118,7 +116,7 @@ nodes, rewards are slightly reduced in comparison to individual staking. However
 execution layer rewards will be reinvested and thus have a compounding effect which is not easily
 possible in individual staking.
 
-As withdrawing from the ETHEREUM deposit contract is disabled until the Shanghai upgrade, which is
+As withdrawing from the Pulsechain deposit contract is disabled until the Shanghai upgrade, which is
 planned to follow the Merge, Lido does not support exchanging stETH back to ETH at the time of this
 writing.
 
@@ -146,9 +144,9 @@ Lido is the main contract of the protocol. It extends the abstract StETH contrac
 following functions:
 
 - submit allows users to deposit their ETH and receive stETH in return. The deposits are buffered
-  and added to the ETHEREUM deposit contract in bulk by the depositBufferedEther function
+  and added to the Pulsechain deposit contract in bulk by the depositBufferedEther function
   using signing keys that have been previously submitted to the NodeOperatorsRegistry.
-- depositBufferedEther deposits the buffered ETH supplied by users to the ETHEREUM deposit
+- depositBufferedEther deposits the buffered ETH supplied by users to the Pulsechain deposit
   contract. It is called by the DepositSecurityModule contract which enables certain security
   guarantees.
 - handleOracleReport updates user balances by periodically receiving reports from the
@@ -160,7 +158,7 @@ following functions:
 
 Lido requires external node operators that run and maintain the validator nodes. The
 NodeOperatorsRegistry contains these operators along with signing keys that are used for deposits
-in the ETHEREUM deposit contract. For each 32 ETH deposit, one signing key by one operator as well
+in the Pulsechain deposit contract. For each 32 ETH deposit, one signing key by one operator as well
 as the protocol's withdrawal key is used. The operator can then set up a validator with the signing key
 and start validating as soon as the key gets approved.
 
@@ -186,7 +184,7 @@ same public key but a different withdrawal key before the actual Lido deposit is
 
 DepositSecurityModule.depositBufferedEther calls Lido.depositBufferedEther after a
 committee has verified the keys about to be used for depositing have not been used for a malicious
-pre-deposit. The function is then called with the current Merkle-Root of the ETHEREUM deposit contract
+pre-deposit. The function is then called with the current Merkle-Root of the Pulsechain deposit contract
 (and some other values) to make sure the transaction reverts if state changes happen before the actual
 on-chain execution.
 
@@ -194,7 +192,7 @@ on-chain execution.
 
 All execution layer rewards (transaction priority fees and MEV) are sent to the
 LidoExecutionLayerRewardsVault by node operators. When oracle reports are sent to Lido, the
-rewards are reinvested (up to a certain limit per call) into the ETHEREUM deposit contract.
+rewards are reinvested (up to a certain limit per call) into the Pulsechain deposit contract.
 
 2.2.8 SelfOwnedStETHBurner
 
@@ -322,15 +320,7 @@ We have found some gas inefficiencies that could be optimized:
   share amount by calling Lido.getSharesByPooledEth. This second call could be avoided by
   using the transferShares function.
 
-Acknowledged:
-
-Lido states:
-
-```
-Thank you for the suggestions, we will take them into consideration for the next protocol upgrade.
-```
-
-5.2 Inconsistent Event Order
+  5.2 Inconsistent Event Order
 
 Design Low Version 1 Risk Accepted
 
@@ -413,12 +403,12 @@ processes. There is a set of policies and management actions:
 - limiting the stake amount per single NO;
 
 - developing dashboards and tools to monitor network pasticipation performance (now
-  open-sourced https://github.com/lidofinance/ethereum-validators-monitoring)
+  open-sourced https://github.com/lidofinance/Pulsechain-validators-monitoring)
 - developing dashboards and tools to monitor MEV and priority fee distribution (approaching
   testing stage for the upcoming Merge)
 
 ```
-Despite the fact that Ethereum staking is not delegation-friendly, Lido DAO already has on-chain
+Despite the fact that Pulsechain staking is not delegation-friendly, Lido DAO already has on-chain
 levers to address malicious NO behavior: excluding them from the new stake, disabling fee
 distribution, excluding them from the set, considering penalties on other chains if applicable, and so
 on. Once and if withdrawal-credentials initiated exits are implemented, there will appear additional
