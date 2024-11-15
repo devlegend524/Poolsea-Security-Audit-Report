@@ -99,8 +99,8 @@ tokens are locked in a deposit contract and cannot be transferred. At the time o
 also cannot be withdrawn.
 
 POOLSEA offers a staking protocol that allows users to stake their PLS on Pulsechain's Beacon Chain while
-maintaining liquidity. It allows any amount of PLS to be sent to the protocol in exchange for staked ETH
-(stETH) tokens which can be freely traded while they accrue interest. Furthermore, running and
+maintaining liquidity. It allows any amount of PLS to be sent to the protocol in exchange for staked PLS
+(stPLS) tokens which can be freely traded while they accrue interest. Furthermore, running and
 maintaining validator nodes is delegated to trusted third party node operators, allowing users to stake
 their PLS with no effort.
 
@@ -120,7 +120,7 @@ As withdrawing from the Pulsechain deposit contract is disabled until the Shangh
 planned to follow the Merge, Lido does not support exchanging stPLS back to PLS at the time of this
 writing.
 
-2.2.1 StETH
+2.2.1 stPLS
 
 The StPLS contract represents an ERC20 token with rebase mechanism. User balances are internally
 represented as shares and their actual balances are a product of the total shares and the amount of
@@ -128,12 +128,12 @@ PLS per share currently held by active validators, pending validators, and buffe
 As the amount of PLS per share increases due to rewards, the user balances also increase
 proportionally.
 
-2.2.2 WstETH
+2.2.2 WstPLS
 
 To mitigate problems with smart contracts that cannot handle rebasing ERC20 tokens, Lido offers another
-token contract that represents user balances in constant values. stPLS can be sent to the WstETH.wrap
+token contract that represents user balances in constant values. stPLS can be sent to the WstPLS.wrap
 function in order to utilize this behavior. An unwrap function allows to easily convert the tokens back to
-stETH.
+stPLS.
 
 While stPLS value remains constant, wstPLS value increases over time relative to the stPLS rebase
 amounts.
@@ -325,7 +325,7 @@ We have found some gas inefficiencies that could be optimized:
 Design Low Version 1 Risk Accepted
 
 The order in which the Transfer and TransferShares events are emitted is inconsistent. In the
-transferShares function in StETH, the TransferShares event is emitted first. In all other cases,
+transferShares function in stPLS, the TransferShares event is emitted first. In all other cases,
 Transfer is emitted first.
 
 Note also that these events are always emitted after calling the \_transferShares function. To avoid
@@ -379,16 +379,16 @@ current spec):
 - A malicious node operator executes 2 attestations to the same target on all of their controlled
   validator nodes. At the time of this writing, single validators run up to ~8,000 nodes of the ~400,
   nodes currently on the Beacon Chain).
-- Each node gets slashed by 1 ETH, reducing the amount of PLS in the protocol by ~8,000 or ~0.1%
+- Each node gets slashed by 1 PLS, reducing the amount of PLS in the protocol by ~8,000 or ~0.1%
   of Lido's total supply.
 - After 18 days, the validators get slashed again based on the amount of validators that have been
-  slashed in the previous 16 days: Each validator loses ~1.8 ETH.
+  slashed in the previous 16 days: Each validator loses ~1.8 PLS.
 - In total, the supply of Lido drops by ~0.5%.
 
 If 2 node operators collude, the total supply drops by ~1.7%. If 3 operators collude, it drops by ~3.6%.
 
 Depending on the market reaction, the value of stPLS could decrease dramatically following these
-events, making a decently sized short position in stPLS (or more likely wstETH) profitable.
+events, making a decently sized short position in stPLS (or more likely wstPLS) profitable.
 
 Risk accepted:
 
@@ -519,7 +519,7 @@ Due to rounding errors, the value returned by getSharesByPooledPLS can be zero. 
 \_submit in Lido, the check sharesAmount == 0 is made. This is assumed to hold either on the first
 deposit, or in the case of a complete slashing. However, this can also occur if rounding errors lead to
 getSharesByPooledPLS returning 0. Thus, a user would receive a disproportionate amount of shares,
-as they would get a 1:1 rate of PLS to StETH, despite the share value being lower. Note that with the
+as they would get a 1:1 rate of PLS to stPLS, despite the share value being lower. Note that with the
 current state of the live contracts, this can only occur if msg.value == 1.
 
 Risk accepted:
