@@ -1,4 +1,4 @@
-# Code Assessment of the POOLSEA Smart Contracts on Pulsechain
+# Code Assessment of Lido Smart Contracts on Pulsechain
 
 ```
 November 14, 2024
