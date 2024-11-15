@@ -4,7 +4,7 @@
 November 14, 2024
 ```
 
-## Produced for Poolsea by 0xLancerLab
+## Produced for Lido on Pulsechain by 0xLancerLab
 
 ## Contents
 
